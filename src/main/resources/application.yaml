@@ -1,0 +1,17 @@
+quarkus:
+  datasource:
+    db-kind: postgresql
+    username: postgres
+    password: 1924
+    jdbc:
+      url: jdbc:postgresql://localhost:5432/ET
+  hibernate-orm:
+    database:
+      default-schema: public
+      generation: update
+  log:
+    console:
+      level: ALL
+
+bcrypt:
+    work-factory: 12
