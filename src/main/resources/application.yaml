@@ -1,17 +1,22 @@
 quarkus:
+  devservices:
+    enabled: false
   datasource:
     db-kind: postgresql
-    username: postgres
-    password: 1924
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     jdbc:
       url: jdbc:postgresql://localhost:5432/ET
+    devservices:
+      enabled: false
   hibernate-orm:
     database:
       default-schema: public
-      generation: update
+    schema-management:
+      strategy: validate
   log:
     console:
-      level: ALL
+      level: INFO
 
 bcrypt:
     work-factory: 12
