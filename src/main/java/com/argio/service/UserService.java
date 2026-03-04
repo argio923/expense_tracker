@@ -50,9 +50,24 @@ public class UserService {
     public UserResponseDto getUserByEmail() {
         var email = securityIdentity.getPrincipal().getName();
         var user = repository.findByEmail(email).orElseThrow(()-> new UserNotFoundByMailException(email));
-        var dto = assembler.toDto(user);
+        var dto = assembler.toResponseDto(user);
 
         return dto;
+    }
+
+    /**
+     * Retrieves the entity of the currently authenticated user using their email address.
+     * This method fetches the email associated with the authenticated user's principal and
+     * retrieves their corresponding entity from the user repository. If no user is found
+     * with the given email, an exception is thrown.
+     *
+     * @return the {@link User} entity associated with the authenticated user's email.
+     * @throws UserNotFoundByMailException if no user exists with the email of the authenticated principal.
+     */
+    @Authenticated
+    public User getEntityByEmail() {
+        var email = securityIdentity.getPrincipal().getName();
+        return repository.findByEmail(email).orElseThrow(()-> new UserNotFoundByMailException(email));
     }
 
     /**
@@ -70,7 +85,7 @@ public class UserService {
         var user = new User(email, encodedPass);
         repository.persistUser(user);
 
-        return assembler.toDto(user);
+        return assembler.toResponseDto(user);
     }
 
     /**
@@ -125,6 +140,6 @@ public class UserService {
 
         user.changePassword(encoder.hash(dto.newPassword()));
         repository.persistUser(user);
-        return assembler.toDto(user);
+        return assembler.toResponseDto(user);
     }
 }

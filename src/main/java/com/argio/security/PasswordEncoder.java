@@ -10,11 +10,11 @@ import java.util.Objects;
 @ApplicationScoped
 public class PasswordEncoder {
 
-    @Inject PasswordEncodedConfig config;
+    public static final Integer WORK_FACTORY = 12;
 
     public String hash(String rawPassword) {
         Objects.requireNonNull(rawPassword);
-        return BCrypt.hashpw(rawPassword, BCrypt.gensalt(config.workFactory));
+        return BCrypt.hashpw(rawPassword, BCrypt.gensalt(WORK_FACTORY));
     }
 
     public boolean verify(String rawPassword, String hashedPassword) {

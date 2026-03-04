@@ -19,4 +19,4 @@ quarkus:
       level: INFO
 
 bcrypt:
-    work-factory: 12
+  work-factory: 12

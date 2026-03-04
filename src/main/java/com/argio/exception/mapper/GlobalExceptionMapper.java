@@ -2,9 +2,12 @@ package com.argio.exception.mapper;
 
 import com.argio.dto.ErrorResponseDto;
 import com.argio.exception.model.DomainException;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
+
+import org.jboss.logging.Logger;
 
 /**
  * A global ExceptionMapper implementation for handling exceptions in a RESTful application.
@@ -26,30 +29,39 @@ import jakarta.ws.rs.ext.Provider;
 @Provider
 public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
 
-    /**
-     * Converts a throwable exception into a RESTful response.
-     *
-     * This method acts as an exception handler within a global exception mapper.
-     * It inspects the provided exception and builds an appropriate HTTP response.
-     * If the exception is of type {@code DomainException}, the response includes
-     * the message from the exception. For other exception types, a generic
-     * internal server error response is returned with a default message.
-     *
-     * @param ex the exception to be mapped to a RESTful response
-     * @return a {@code Response} object encapsulating the HTTP status code and
-     *         an {@code ErrorResponseDto} containing the error message and
-     *         status code
-     */
+    private static final Logger LOG = Logger.getLogger(GlobalExceptionMapper.class);
+
     @Override
     public Response toResponse(Throwable ex) {
-        var status = 500;
-        String message = "Internal server error";
+        // Logga SEMPRE: così in console vedrai stacktrace e causa reale
+        LOG.error("Unhandled exception", ex);
 
-        if(ex instanceof DomainException)
-            message = ex.getMessage();
+        // Se è una WebApplicationException (es. NotFoundException, BadRequestException, ecc)
+        // rispetta lo status invece di trasformare tutto in 500.
+        if (ex instanceof WebApplicationException wae) {
+            int status = wae.getResponse().getStatus();
+            String message = safeMessage(wae.getMessage(), "Request failed");
+            return Response.status(status)
+                    .entity(new ErrorResponseDto(message, status))
+                    .build();
+        }
 
+        // Eccezioni di dominio: messaggio “pulito” al client
+        if (ex instanceof DomainException) {
+            int status = 400; // scegli tu (400/409/404 ecc in base al tipo)
+            return Response.status(status)
+                    .entity(new ErrorResponseDto(ex.getMessage(), status))
+                    .build();
+        }
+
+        // Tutto il resto: 500 generico
+        int status = 500;
         return Response.status(status)
-                       .entity(new ErrorResponseDto(message, status))
-                       .build();
+                .entity(new ErrorResponseDto("Internal server error", status))
+                .build();
+    }
+
+    private String safeMessage(String message, String fallback) {
+        return (message == null || message.isBlank()) ? fallback : message;
     }
 }

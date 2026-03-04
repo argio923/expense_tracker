@@ -4,6 +4,8 @@ import com.argio.dto.user.UserResponseDto;
 import com.argio.entity.User;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import java.util.Objects;
+
 /**
  * A utility class responsible for converting {@link User} domain entities into {@link UserResponseDto}
  * data transfer objects for external use. This class provides methods to map the internal representation
@@ -34,9 +36,8 @@ public class UserAssembler {
      * @return a {@link UserResponseDto} containing the user's ID, email, role, and creation timestamp,
      *         or {@code null} if the input {@code user} is {@code null}.
      */
-    public UserResponseDto toDto(User user) {
-        if(user == null)
-            return null;
+    public UserResponseDto toResponseDto(User user) {
+        Objects.requireNonNull(user);
 
         return new UserResponseDto(
             user.getId(),

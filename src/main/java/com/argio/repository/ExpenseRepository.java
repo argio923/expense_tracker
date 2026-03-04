@@ -3,8 +3,10 @@ package com.argio.repository;
 import com.argio.entity.Expense;
 import com.argio.enums.ExpenseCategory;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,30 +23,44 @@ import java.util.UUID;
 public class ExpenseRepository implements PanacheRepository<Expense> {
 
     /**
-     * Retrieves a list of {@code Expense} entities associated with a specific user.
-     * This method queries the database for expenses that belong to the user identified
-     * by the given user ID.
+     * Retrieves a list of {@code Expense} entities that match the given criteria.
+     * This method filters expenses based on the user's email, expense category,
+     * and an optional date range, while excluding deleted expenses.
      *
-     * @param userId the unique identifier of the user whose expenses are to be retrieved; must not be null.
-     * @return a {@code List} containing {@code Expense} entities associated with the given user ID,
-     * or an empty list if no expenses are found for the user.
+     * @param userMail the email of the user to whom the expenses belong; must not be null.
+     * @param category the category to filter the expenses by; can be null to include all categories.
+     * @param dateBy the start date to filter expenses by (inclusive); can be null to ignore this filter.
+     * @param dateTo the end date to filter expenses by (inclusive); can be null to ignore this filter.
+     * @return a list of {@code Expense} entities that match the provided filter criteria, or an empty list if no matching expenses are found.
      */
-    public List<Expense> findListByUser(UUID userId) {
-        return list("userId", userId);
-    }
+    public List<Expense> findList(
+        String userMail,
+        ExpenseCategory category,
+        LocalDate dateBy,
+        LocalDate dateTo
+    ) {
+        var query = new StringBuilder(
+            "user.email = :mail and deleted = false"
+        );
+        var params = Parameters.with("mail", userMail);
 
-    /**
-     * Retrieves a list of {@code Expense} entities associated with a specific user and category.
-     * This method queries the database for expenses that belong to the user identified by the given
-     * user ID and match the specified expense category.
-     *
-     * @param category the specific {@code ExpenseCategory} to filter expenses by; must not be null.
-     * @param userId   the unique identifier of the user whose expenses are to be retrieved; must not be null.
-     * @return a {@code List} containing {@code Expense} entities that belong to the specified user
-     * and match the given category, or an empty list if no matching expenses are found.
-     */
-    public List<Expense> findListByCategoryAndUser(ExpenseCategory category, UUID userId) {
-        return list("userId = ?1 and category = ?2", userId, category);
+        if(category != null) {
+            query.append(" and category = :category");
+            params.with("category", category);
+        }
+
+        if(dateBy != null) {
+            query.append(" and date >= :dateBy");
+            params.with("dateBy", dateBy);
+        }
+
+        if(dateTo != null) {
+            query.append(" and date <= :dateTo");
+            params.with("dateTo", dateTo);
+        }
+
+        return list(query.toString(), params);
+
     }
 
     /**
@@ -80,5 +96,15 @@ public class ExpenseRepository implements PanacheRepository<Expense> {
      */
     public void persistExpenseList(List<Expense> expenseList) {
         persist(expenseList);
+    }
+
+    /**
+     * Deletes an {@code Expense} entity identified by the given unique expense ID.
+     * This method removes the expense from the database.
+     *
+     * @param expenseId the unique identifier of the expense to be deleted; must not be null.
+     */
+    public void deleteExpense(UUID expenseId) {
+        deleteExpense(expenseId);
     }
 }

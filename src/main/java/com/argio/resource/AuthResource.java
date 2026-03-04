@@ -22,7 +22,7 @@ import jakarta.ws.rs.core.Response;
  * An instance of this class relies on the {@link AuthService} to process business logic for
  * authentication and user registration.
  */
-@Path("/users")
+@Path("/auth")
 @PermitAll
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)

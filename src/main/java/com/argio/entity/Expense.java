@@ -52,6 +52,10 @@ public class Expense extends PanacheEntityBase {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
+    private User user;
+
     @Column(name = "amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
 
@@ -71,6 +75,22 @@ public class Expense extends PanacheEntityBase {
 
     @Column(name = "deleted", nullable = false)
     private boolean deleted;
+
+    public Expense(
+        UUID userId,
+        User user,
+        BigDecimal amount,
+        ExpenseCategory category,
+        String description,
+        LocalDate expenseDate
+    ){
+        this.userId = userId;
+        this.user = user;
+        this.amount = amount;
+        this.category = category;
+        this.description = description;
+        this.expenseDate = expenseDate;
+    }
 
     /**
      * Lifecycle callback method invoked before the entity is persisted to the database.
@@ -96,6 +116,7 @@ public class Expense extends PanacheEntityBase {
      */
     @PrePersist
     void prePersist() {
-        if (createdAt == null) createdAt = Instant.now();
+        createdAt = Instant.now();
+        deleted = false;
     }
 }
