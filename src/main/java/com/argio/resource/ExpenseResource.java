@@ -9,6 +9,8 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
+import org.eclipse.microprofile.openapi.annotations.info.Info;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -23,7 +25,10 @@ public class ExpenseResource {
 
     @GET
     @Path("/get")
-    public Response getExpense(UUID id) {
+
+    public Response getExpense(
+        @QueryParam("id") UUID id
+    ) {
         var expense = service.get(id);
         return Response.ok(expense).build();
     }
