@@ -13,6 +13,4 @@ public record ExpenseResponseDto(
     ExpenseCategory category,
     String description,
     LocalDate expenseDate
-
-
 ) {}

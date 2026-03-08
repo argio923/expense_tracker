@@ -44,23 +44,18 @@ public class ExpenseRepository implements PanacheRepository<Expense> {
         );
         var params = Parameters.with("mail", userMail);
 
+        query.append(" and expenseDate >= :dateBy");
+        params.and("dateBy", dateBy);
+
+        query.append(" and expenseDate <= :dateTo");
+        params.and("dateTo", dateTo);
+
         if(category != null) {
             query.append(" and category = :category");
-            params.with("category", category);
-        }
-
-        if(dateBy != null) {
-            query.append(" and date >= :dateBy");
-            params.with("dateBy", dateBy);
-        }
-
-        if(dateTo != null) {
-            query.append(" and date <= :dateTo");
-            params.with("dateTo", dateTo);
+            params.and("category", category);
         }
 
         return list(query.toString(), params);
-
     }
 
     /**

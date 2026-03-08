@@ -47,6 +47,13 @@ public class ExpenseService {
         ExpenseCategory category
     ) {
         var email = securityIdentity.getPrincipal().getName();
+        var today = LocalDate.now();
+
+        if(dateFrom == null)
+            dateFrom = today.withDayOfMonth(1);
+
+        if(dateTo == null)
+            dateTo = today;
 
         var expenseList = repository.findList(email, category, dateFrom, dateTo);
         return assembler.toResponseDto(expenseList);

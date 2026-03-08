@@ -7,11 +7,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record RegisterExpenseDto(
-    @NotBlank
+    @NotNull
     @Positive
     @Digits(integer = 10, fraction = 2)
     BigDecimal amount,
-    @NotBlank
+    @NotNull
     ExpenseCategory category,
     @NotBlank
     @Size(max = 500)

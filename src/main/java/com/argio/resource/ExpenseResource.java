@@ -1,6 +1,5 @@
 package com.argio.resource;
 
-import com.argio.dto.expense.ExpenseResponseDto;
 import com.argio.dto.expense.RegisterExpenseDto;
 import com.argio.enums.ExpenseCategory;
 import com.argio.service.ExpenseService;
@@ -9,8 +8,6 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
-import org.eclipse.microprofile.openapi.annotations.info.Info;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -24,19 +21,17 @@ public class ExpenseResource {
     @Inject ExpenseService service;
 
     @GET
-    @Path("/get")
-
+    @Path("/{id}")
     public Response getExpense(
-        @QueryParam("id") UUID id
+        @PathParam("id") UUID id
     ) {
         var expense = service.get(id);
         return Response.ok(expense).build();
     }
 
     @GET
-    @Path("/get-list")
     public Response getExpenseList(
-        @QueryParam("dateFrom") LocalDate dateFrom,
+        @QueryParam("dateFrom" ) LocalDate dateFrom,
         @QueryParam("dateTo") LocalDate dateTo,
         @QueryParam("category") ExpenseCategory category
     ) {
@@ -45,7 +40,6 @@ public class ExpenseResource {
     }
 
     @POST
-    @Path("/new-expense")
     public Response createExpense(@Valid RegisterExpenseDto expenseRequest) {
         service.registerExpense(expenseRequest);
         return Response.ok().build();

@@ -46,7 +46,7 @@ import java.util.UUID;
 public class Expense extends PanacheEntityBase {
 
     @Id
-    @Column(name = "id", nullable = false)
+    @GeneratedValue
     private UUID id;
 
     @Column(name = "user_id", nullable = false)
