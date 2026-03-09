@@ -41,12 +41,12 @@ public class ExpenseAssembler {
         Objects.requireNonNull(expense);
 
         return new ExpenseResponseDto(
-                expense.getId(),
-                expense.getUserId(),
-                expense.getAmount(),
-                expense.getCategory(),
-                expense.getDescription(),
-                expense.getExpenseDate()
+            expense.getId(),
+            expense.getUserId(),
+            expense.getAmount(),
+            expense.getCategory(),
+            expense.getDescription(),
+            expense.getExpenseDate()
         );
     }
 

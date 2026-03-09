@@ -3,6 +3,7 @@ package com.argio.service;
 import com.argio.assembler.ExpenseAssembler;
 import com.argio.dto.expense.ExpenseResponseDto;
 import com.argio.dto.expense.RegisterExpenseDto;
+import com.argio.dto.expense.UpdateExpenseDto;
 import com.argio.entity.Expense;
 import com.argio.enums.ExpenseCategory;
 import com.argio.exception.model.ExpenseNotFoundException;
@@ -27,6 +28,16 @@ public class ExpenseService {
     @Inject SecurityIdentity securityIdentity;
     @Inject UserService userService;
 
+    /**
+     * Retrieves an expense entry by its unique identifier and converts it into a response DTO.
+     * This method fetches the expense from the database, and if the expense exists,
+     * it transforms the entity into a lightweight {@code ExpenseResponseDto}.
+     * If the expense is not found, an {@code ExpenseNotFoundException} is thrown.
+     *
+     * @param id the unique identifier of the expense to be retrieved; must not be null.
+     * @return an {@code ExpenseResponseDto} containing the details of the retrieved expense.
+     * @throws ExpenseNotFoundException if no expense is found with the given identifier.
+     */
     public ExpenseResponseDto get(UUID id) {
         var expenseEntity = repository.findById(id).orElseThrow(()-> new ExpenseNotFoundException());
         return assembler.toResponseDto(expenseEntity);
@@ -60,6 +71,30 @@ public class ExpenseService {
     }
 
     /**
+     * Updates the details of an existing expense entry based on the provided data.
+     * This method retrieves the expense entity by its unique identifier, applies
+     * the updated values, and ensures the changes are persisted.
+     *
+     * @param toUpdate the data transfer object containing the updated details
+     *                 of the expense, including identifier, amount, category,
+     *                 description, and expense date; must not be null.
+     * @throws ExpenseNotFoundException if no expense is found with the given identifier.
+     */
+    @Transactional
+    public void updateExpense(UpdateExpenseDto toUpdate) {
+        var expenseEntity = repository.findById(toUpdate.id()).orElseThrow(() -> new ExpenseNotFoundException());
+
+        expenseEntity.updateValues(
+            toUpdate.amount(),
+            toUpdate.category(),
+            toUpdate.description(),
+            toUpdate.expenseDate()
+        );
+
+        repository.persist(expenseEntity);
+    }
+
+    /**
      * Registers a single expense in the system for the currently authenticated user.
      * This method creates a new {@link Expense} entity based on the provided data and persists it to the database.
      *
@@ -80,6 +115,7 @@ public class ExpenseService {
                 dto.description(),
                 dto.expenseDate()
         );
+
         repository.persist(expense);
     }
 

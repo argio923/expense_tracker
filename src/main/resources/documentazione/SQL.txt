@@ -46,3 +46,41 @@ CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_expenses_user_active
 ON expenses(user_id)
 WHERE deleted = false;
+
+CREATE TYPE income_category AS ENUM (
+    'SALARY',
+    'BENEFIT',
+    'REIMBURSEMENT',
+    'OTHER'
+    );
+
+CREATE TABLE incomes (
+                         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                         user_id UUID NOT NULL,
+                         amount NUMERIC(12,2) NOT NULL CHECK (amount > 0),
+                         category income_category NOT NULL,
+                         description VARCHAR(500),
+                         income_date DATE NOT NULL,
+                         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                         deleted BOOLEAN NOT NULL DEFAULT FALSE,
+
+                         CONSTRAINT fk_incomes_user
+                             FOREIGN KEY (user_id)
+                                 REFERENCES users(id)
+                                 ON DELETE CASCADE
+);
+
+CREATE INDEX idx_incomes_user_id ON incomes(user_id);
+
+CREATE INDEX idx_incomes_user_date
+    ON incomes(user_id, income_date);
+
+CREATE INDEX idx_incomes_user_category
+    ON incomes(user_id, category);
+
+CREATE INDEX idx_incomes_not_deleted
+    ON incomes(deleted);
+
+CREATE INDEX idx_incomes_user_active
+    ON incomes(user_id)
+    WHERE deleted = false;

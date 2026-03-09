@@ -119,4 +119,24 @@ public class Expense extends PanacheEntityBase {
         createdAt = Instant.now();
         deleted = false;
     }
+
+    /**
+     * Updates the values of the expense entity.
+     *
+     * @param amount The monetary amount of the expense. Must not be null.
+     * @param category The category of the expense. Represents the type of the expense.
+     * @param description A brief description of the expense. Can be null or empty.
+     * @param expenseDate The date on which the expense occurred. Must not be null.
+     */
+    public void updateValues(
+        BigDecimal amount,
+        ExpenseCategory category,
+        String description,
+        LocalDate expenseDate
+    ) {
+        this.amount = amount;
+        this.category = category;
+        this.description = description;
+        this.expenseDate = expenseDate;
+    }
 }

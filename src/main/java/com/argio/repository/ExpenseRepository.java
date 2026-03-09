@@ -23,15 +23,17 @@ import java.util.UUID;
 public class ExpenseRepository implements PanacheRepository<Expense> {
 
     /**
-     * Retrieves a list of {@code Expense} entities that match the given criteria.
-     * This method filters expenses based on the user's email, expense category,
-     * and an optional date range, while excluding deleted expenses.
+     * Retrieves a list of {@code Expense} entities for a specific user within a given date range
+     * and optionally filtered by expense category. The query also ensures that only non-deleted
+     * expenses are returned.
      *
-     * @param userMail the email of the user to whom the expenses belong; must not be null.
-     * @param category the category to filter the expenses by; can be null to include all categories.
-     * @param dateBy the start date to filter expenses by (inclusive); can be null to ignore this filter.
-     * @param dateTo the end date to filter expenses by (inclusive); can be null to ignore this filter.
-     * @return a list of {@code Expense} entities that match the provided filter criteria, or an empty list if no matching expenses are found.
+     * @param userMail the email of the user whose expenses are to be retrieved; must not be null.
+     * @param category an optional category filter for the expenses; can be null to retrieve expenses
+     *                 of all categories.
+     * @param dateBy the start date of the range within which expenses should be retrieved; must not be null.
+     * @param dateTo the end date of the range within which expenses should be retrieved; must not be null.
+     * @return a list of {@code Expense} entities satisfying the query parameters; the list will
+     *         be empty if no expenses match the criteria.
      */
     public List<Expense> findList(
         String userMail,
@@ -39,9 +41,9 @@ public class ExpenseRepository implements PanacheRepository<Expense> {
         LocalDate dateBy,
         LocalDate dateTo
     ) {
-        var query = new StringBuilder(
-            "user.email = :mail and deleted = false"
-        );
+        var query = new StringBuilder();
+
+        query.append("user.email = :mail and deleted = false");
         var params = Parameters.with("mail", userMail);
 
         query.append(" and expenseDate >= :dateBy");
@@ -69,28 +71,6 @@ public class ExpenseRepository implements PanacheRepository<Expense> {
      */
     public Optional<Expense> findById(UUID expenseId) {
         return findById(expenseId);
-    }
-
-    /**
-     * Persists a new {@code Expense} entity to the database.
-     * This method saves a new expense to the database, associating it with the user
-     * identified by the given user ID.
-     *
-     * @param expense the {@code Expense} entity to be persisted; must not be null.
-     */
-    public void persistExpense(Expense expense) {
-        persist(expense);
-    }
-
-    /**
-     * Persists a list of {@code Expense} entities to the database.
-     * This method saves a list of expenses to the database, associating each expense with the user
-     * identified by the given user ID.
-     *
-     * @param expenseList the list of {@code Expense} entities to be persisted; must not be null.
-     */
-    public void persistExpenseList(List<Expense> expenseList) {
-        persist(expenseList);
     }
 
     /**
